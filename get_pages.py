@@ -1,6 +1,6 @@
 import os
 import sys
-from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 
 array = [] # (filename, [ pages ])
@@ -51,7 +51,7 @@ output = PdfFileWriter()
 
 # combine pages
 for filename, pages in sortarr:
-    f = PdfFileReader(open(filename, "rb"))
+    f = PdfFileReader(open(filename, "rb"), strict=False)
     for pagenum in pages:
         output.addPage(f.getPage(pagenum-1))
 
