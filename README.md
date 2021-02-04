@@ -1,1 +1,1 @@
-Simple script that searches with ![ripgrep-all]() in pdfs and combines all matching pages in one pdf.
+Simple script that searches with ![ripgrep-all](https://github.com/phiresky/ripgrep-all) in pdfs and combines all matching pages in one pdf.
