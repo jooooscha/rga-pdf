@@ -13,6 +13,9 @@ i = -1
 for line in sys.stdin:
     filename, page_num = line.split()
 
+    if (filename.split(".")[-1] != "pdf"):
+        continue
+
     if current_page != filename:
 
         if current_page != "" :
