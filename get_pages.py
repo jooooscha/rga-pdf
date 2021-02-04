@@ -13,6 +13,7 @@ i = -1
 for line in sys.stdin:
     filename, page_num = line.split()
 
+    # filter all but pdf's
     if (filename.split(".")[-1] != "pdf"):
         continue
 
