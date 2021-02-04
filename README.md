@@ -3,4 +3,4 @@ Simple script that searches with ![ripgrep-all](https://github.com/phiresky/ripg
 
 # Installing
 
-Symlink both files to ~/.local/bin/<filename>
+Symlink both files to `~/.local/bin/<filename>`
