@@ -1,15 +1,18 @@
 o_flag=false
 input=""
-delete=false
+persistent=false
 
-while getopts "os:d" arg
+while getopts "os:p" arg
 do
     case "${arg}" in
         o) o_flag=true ;;
         s) input="${OPTARG}" ;;
-        d) delete=true ;;
+        p) persistent=true ;;
     esac
 done
+
+searchterm=$input
+input=${input// /_}
 
 if [ "$input" == "" ]
 then
@@ -19,11 +22,11 @@ fi
 
 name="results_of_$input.pdf"
 
-rga "$input" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
+rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
 
 echo "searching for $input"
 
-if [ "$delete" = true ] && [ -f "$name" ]
+if [ "$persistent" = false ] && [ -f "$name" ]
 then
     mv "$name" "/tmp/$name"
     if [ "$o_flag" = true ] && [ -f "/tmp/$name" ]
