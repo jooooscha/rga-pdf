@@ -1,13 +1,13 @@
 o_flag=false
 input=""
-persistent=false
+delete=false
 
-while getopts "os:p" arg
+while getopts "os:d" arg
 do
     case "${arg}" in
         o) o_flag=true ;;
         s) input="${OPTARG}" ;;
-        p) persistent=true ;;
+        d) delete=true ;;
     esac
 done
 
@@ -17,16 +17,16 @@ then
     exit
 fi
 
-echo "searching for $input"
-
 name="results_of_$input.pdf"
 
 rga "$input" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
 
-if [ "$persistent" = false ] && [ -f "$name" ]
+echo "searching for $input"
+
+if [ "$delete" = true ] && [ -f "$name" ]
 then
     mv "$name" "/tmp/$name"
-    if [ "$o_flag" = true ] && [ -f "$name" ]
+    if [ "$o_flag" = true ] && [ -f "/tmp/$name" ]
     then
         xdg-open "/tmp/$name" 2> /dev/null
     fi
