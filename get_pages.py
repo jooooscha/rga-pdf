@@ -2,7 +2,6 @@ import os
 import sys
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
-
 array = [] # (filename, [ pages ])
 current_array = [] # temp array
 
@@ -11,19 +10,18 @@ i = -1
 
 # parse input
 for line in sys.stdin:
+    print(line)
 
     try:
         filename, page_num = line.split()
     except:
         raise SystemExit("Parsing Error")
 
-
     # filter all but pdf's
     if (filename.split(".")[-1] != "pdf"):
         continue
 
     if current_page != filename:
-
         if current_page != "" :
             array.append((current_page, current_array))
             current_array = []
@@ -34,10 +32,11 @@ for line in sys.stdin:
 
     current_array.append(page_num)
 
-if len(array) == 0:
-    raise SystemExit("No Pdfs found") # exits
-
 array.append((current_page, current_array)) # append last found
+
+if len(array) == 0:
+    print(array)
+    raise SystemExit("Nothing found") # exits
 
 # convert string to int
 intarray = []
