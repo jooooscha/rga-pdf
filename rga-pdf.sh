@@ -1,13 +1,15 @@
 o_flag=false
 input=""
 persistent=false
+addfilename=false
 
-while getopts "os:p" arg
+while getopts "os:pf" arg
 do
     case "${arg}" in
         o) o_flag=true ;;
         s) input="${OPTARG}" ;;
         p) persistent=true ;;
+        f) addfilename=true
     esac
 done
 
@@ -22,7 +24,8 @@ fi
 
 name="results_of_$input.pdf"
 
-rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
+# rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py "$addfilename" > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
+rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py "$addfilename" && mv --backup=numbered "output.pdf" "$name" || echo "python error"
 
 echo "searching for $input"
 

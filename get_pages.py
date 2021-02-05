@@ -4,6 +4,7 @@ import io
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
+print(sys.argv)
 
 array = [] # (filename, [ pages ])
 current_array = [] # temp array
@@ -13,7 +14,6 @@ i = -1
 
 # parse input
 for line in sys.stdin:
-    print(line)
 
     try:
         filename, page_num = line.split()
@@ -21,7 +21,7 @@ for line in sys.stdin:
         raise SystemExit("Parsing Error")
 
     # filter all but pdf's
-    if (filename.split(".")[-1] != "pdf"):
+    if (filename.split(".")[-1] != "pdf") :
         continue
 
     if current_page != filename:
@@ -38,7 +38,6 @@ for line in sys.stdin:
 array.append((current_page, current_array)) # append last found
 
 if len(array) == 0:
-    print(array)
     raise SystemExit("Nothing found") # exits
 
 # convert string to int
@@ -62,6 +61,7 @@ output = PdfFileWriter()
 for filename, pages in sortarr:
     f = PdfFileReader(open(filename, "rb"), strict=False)
 
+    # write filename to a temp pdf
     packet = io.BytesIO()
     can = canvas.Canvas(packet)
     can.setFillColorRGB(0.7, 0.7, 0.7)
@@ -73,7 +73,8 @@ for filename, pages in sortarr:
 
     for pagenum in pages:
         page = f.getPage(pagenum-1)
-        page.mergePage(tmppdf.getPage(0))
+        if sys.argv[1] == 'true': # if wanted: write to original pdf
+            page.mergePage(tmppdf.getPage(0))
         output.addPage(page)
 
 # filename
