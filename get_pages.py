@@ -11,7 +11,12 @@ i = -1
 
 # parse input
 for line in sys.stdin:
-    filename, page_num = line.split()
+
+    try:
+        filename, page_num = line.split()
+    except:
+        raise SystemExit("Parsing Error")
+
 
     # filter all but pdf's
     if (filename.split(".")[-1] != "pdf"):
@@ -29,6 +34,8 @@ for line in sys.stdin:
 
     current_array.append(page_num)
 
+if len(array) == 0:
+    raise SystemExit("No Pdfs found") # exits
 
 array.append((current_page, current_array)) # append last found
 
