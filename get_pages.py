@@ -1,6 +1,9 @@
 import os
 import sys
+import io
+from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader, PdfFileWriter
+
 
 array = [] # (filename, [ pages ])
 current_array = [] # temp array
@@ -58,8 +61,20 @@ output = PdfFileWriter()
 # combine pages
 for filename, pages in sortarr:
     f = PdfFileReader(open(filename, "rb"), strict=False)
+
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet)
+    can.setFillColorRGB(0.7, 0.7, 0.7)
+    can.drawString(4, 4, filename)
+    can.save()
+
+    packet.seek(0)
+    tmppdf = PdfFileReader(packet)
+
     for pagenum in pages:
-        output.addPage(f.getPage(pagenum-1))
+        page = f.getPage(pagenum-1)
+        page.mergePage(tmppdf.getPage(0))
+        output.addPage(page)
 
 # filename
 f = "output.pdf"
