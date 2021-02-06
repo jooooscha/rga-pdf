@@ -1,3 +1,5 @@
+#!/usr/bin/sh
+
 o_flag=false
 input=""
 persistent=false
@@ -25,7 +27,7 @@ fi
 name="results_of_$input.pdf"
 
 # rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py "$addfilename" > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
-rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py "$addfilename" && mv --backup=numbered "output.pdf" "$name" || echo "python error"
+rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" && mv --backup=numbered "output.pdf" "$name" || echo "python error"
 
 echo "searching for $input"
 
@@ -40,5 +42,4 @@ elif [ "$o_flag" = true ] && [ -f "$name" ]
 then
     xdg-open "$name" 2> /dev/null
 fi
-
 
