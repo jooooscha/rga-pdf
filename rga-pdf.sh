@@ -32,7 +32,7 @@ name="results_of_$input.pdf"
 # ---------------------------------------------------------------------
 
 # main command
-rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" "$name" || echo "Something went wront; most likely with python"
+rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" "$name" || echo "Something went wrong; most likely with python"
 
 # ---------------------------------------------------------------------
 
