@@ -5,6 +5,7 @@ input=""
 persistent=false
 addfilename=false
 
+# get opts ------------------------------------------------------------
 while getopts "os:pf" arg
 do
     case "${arg}" in
@@ -15,10 +16,12 @@ do
     esac
 done
 
-searchterm=$input
-input=${input// /_}
+# ---------------------------------------------------------------------
 
-if [ "$input" == "" ]
+searchterm=$input
+input=${input// /_} # replace space with underline
+
+if [ "$input" == "" ] # check if no input was given
 then
     echo "invalid input"
     exit
@@ -26,20 +29,24 @@ fi
 
 name="results_of_$input.pdf"
 
-# rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/get_pages.py "$addfilename" > /dev/null 2>&1 && mv --backup=numbered "output.pdf" "$name" || echo "python error"
-rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" && mv --backup=numbered "output.pdf" "$name" || echo "python error"
+# ---------------------------------------------------------------------
+
+# main command
+rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" "$name" || echo "Something went wront; most likely with python"
+
+# ---------------------------------------------------------------------
 
 echo "searching for $input"
 
-if [ "$persistent" = false ] && [ -f "$name" ]
+if [ "$persistent" = true ] && [ -f "/tmp/$name" ] # persistent
 then
-    mv "$name" "/tmp/$name"
-    if [ "$o_flag" = true ] && [ -f "/tmp/$name" ]
+    mv "/tmp/$name" "$name"
+    if [ "$o_flag" = true ] && [ -f "$name" ] # persistent and open
     then
         xdg-open "/tmp/$name" 2> /dev/null
     fi
-elif [ "$o_flag" = true ] && [ -f "$name" ]
+elif [ "$o_flag" = true ] && [ -f "/tmp/$name" ] # non persistant but open
 then
-    xdg-open "$name" 2> /dev/null
+    xdg-open "/tmp/$name" 2> /dev/null
 fi
 

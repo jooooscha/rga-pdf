@@ -6,7 +6,7 @@ import io
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
-print(sys.argv)
+#  print(sys.argv)
 
 array = [] # (filename, [ pages ])
 current_array = [] # temp array
@@ -80,7 +80,7 @@ for filename, pages in sortarr:
         output.addPage(page)
 
 # filename
-f = "output.pdf"
+f = "/tmp/" + sys.argv[2]
 
 # remove if exists
 if os.path.exists(f):
