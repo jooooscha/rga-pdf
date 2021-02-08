@@ -27,7 +27,7 @@ then
     exit
 fi
 
-name="results_of_$input.pdf"
+name="pages_with_$input.pdf"
 
 # ---------------------------------------------------------------------
 
