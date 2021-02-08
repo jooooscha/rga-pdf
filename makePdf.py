@@ -20,7 +20,7 @@ for line in sys.stdin:
     try:
         filename, page_num = line.split()
     except:
-        print("Could not parse:" + line)
+        print("Could not parse: " + line)
         continue
         #  raise SystemExit("Parsing Error")
 
