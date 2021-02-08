@@ -20,7 +20,9 @@ for line in sys.stdin:
     try:
         filename, page_num = line.split()
     except:
-        raise SystemExit("Parsing Error")
+        print("Could not parse:" + line)
+        continue
+        #  raise SystemExit("Parsing Error")
 
     # filter all but pdf's
     if (filename.split(".")[-1] != "pdf") :
