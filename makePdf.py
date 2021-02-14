@@ -22,11 +22,12 @@ for line in sys.stdin:
     except:
         print("Could not parse: " + line)
         continue
-        #  raise SystemExit("Parsing Error")
 
-    # filter all but pdf's
-    if (filename.split(".")[-1] != "pdf") :
+    if filename.split(".")[-1] != "pdf" or (filename.startswith("pages_with_") and sys.argv[4]):
+        # skip non pdf
+        # skip previous ourputs
         continue
+
 
     if current_page != filename:
         if current_page != "" :
@@ -61,8 +62,12 @@ for name, pages in intarray:
 # prepare output
 output = PdfFileWriter()
 
+pagecounter = 0
+
 # combine pages
 for filename, pages in sortarr:
+    if filename == "":
+        continue
     f = PdfFileReader(open(filename, "rb"), strict=False)
 
     # write filename to a temp pdf
@@ -70,6 +75,11 @@ for filename, pages in sortarr:
     can = canvas.Canvas(packet)
     can.setFillColorRGB(0.7, 0.7, 0.7)
     can.drawString(4, 4, filename)
+
+    hostnamewidth = can.stringWidth(filename)
+    linkRect = (0, 0, hostnamewidth, 20)
+    path = "file://" + sys.argv[3] + "/" + filename
+    can.linkURL(path, linkRect)
     can.save()
 
     packet.seek(0)
@@ -80,6 +90,9 @@ for filename, pages in sortarr:
         if sys.argv[1] == 'true': # if wanted: write to original pdf
             page.mergePage(tmppdf.getPage(0))
         output.addPage(page)
+        pagecounter += 1
+
+print(str(pagecounter) + " pages have been found")
 
 # filename
 f = "/tmp/" + sys.argv[2]
@@ -88,7 +101,11 @@ f = "/tmp/" + sys.argv[2]
 if os.path.exists(f):
     os.remove(f)
 
+
 # write
+if pagecounter == 0:
+    print("Document empty. Nothing written")
+    exit()
 outputStream = open(f, "bw")
 output.write(outputStream)
 outputStream.close()
