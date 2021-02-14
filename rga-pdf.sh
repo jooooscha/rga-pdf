@@ -4,15 +4,17 @@ o_flag=false
 input=""
 persistent=false
 addfilename=false
+excludeprevoutput=true
 
 # get opts ------------------------------------------------------------
-while getopts "os:pf" arg
+while getopts "os:pfi" arg
 do
     case "${arg}" in
         o) o_flag=true ;;
         s) input="${OPTARG}" ;;
-        p) persistent=true ;;
-        f) addfilename=true
+        p) persistent=true ;; # p - move file to persistent storage (current dir)
+        f) addfilename=true ;; # f - add Filename to bottom of page
+        i) excludeprevoutput=false ;; # i - Include prev outptu
     esac
 done
 
@@ -29,21 +31,21 @@ fi
 
 name="pages_with_$input.pdf"
 
+echo "searching for '$searchterm'"
+
 # ---------------------------------------------------------------------
 
 # main command
-rga "$searchterm" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" "$name" || echo "Something went wrong; most likely with python"
+rga "($searchterm)" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
 
 # ---------------------------------------------------------------------
-
-echo "searching for $input"
 
 if [ "$persistent" = true ] && [ -f "/tmp/$name" ] # persistent
 then
     mv "/tmp/$name" "$name"
     if [ "$o_flag" = true ] && [ -f "$name" ] # persistent and open
     then
-        xdg-open "/tmp/$name" 2> /dev/null
+        xdg-open "$name" 2> /dev/null
     fi
 elif [ "$o_flag" = true ] && [ -f "/tmp/$name" ] # non persistant but open
 then
