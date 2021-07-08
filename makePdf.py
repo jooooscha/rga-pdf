@@ -110,4 +110,4 @@ outputStream = open(f, "bw")
 output.write(outputStream)
 outputStream.close()
 
-print("file written")
+print(sys.argv[2], " written")
