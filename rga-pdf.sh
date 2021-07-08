@@ -1,54 +1,116 @@
-#!/usr/bin/sh
+#!/usr/bin/bash
 
-o_flag=false
-input=""
-persistent=false
-addfilename=false
-excludeprevoutput=true
+# open=true
+# input=""
+# output=false
+# linkfilename=true
+# excludeprevoutput=true
+# filestosearch=""
 
 # get opts ------------------------------------------------------------
-while getopts "os:pfi" arg
+# while getopts "os:plif:" arg
+# do
+#     case "${arg}" in
+#         # o) o_flag=false ;;
+#         s) input="${OPTARG}" ;;
+#         o) output=true ;; # p - move file to persistent storage (current dir)
+#         l) linkfilename=false ;; # f - add Filename to bottom of page
+#         i) excludeprevoutput=false ;; # i - Include prev outptu
+#         f) filestosearch="${OPTARG}" ;; # files to seach through
+#     esac
+# done
+
+view=true
+links=true
+files=""
+output=false
+write=false
+search=""
+excludeprevoutput=false
+
+showHelp() {
+cat << EOF
+Usage:
+
+    --open  Open pdf automatically
+EOF
+}
+
+options=$(getopt -l "no-view,no-link,files:,output:,write,search:,help,exclude-previous" -o "f:o:ws:h" -a -- "$@")
+
+eval set -- "$options"
+
+while true
 do
-    case "${arg}" in
-        o) o_flag=true ;;
-        s) input="${OPTARG}" ;;
-        p) persistent=true ;; # p - move file to persistent storage (current dir)
-        f) addfilename=true ;; # f - add Filename to bottom of page
-        i) excludeprevoutput=false ;; # i - Include prev outptu
+    case $1 in
+         --no-view)
+            view=false
+            ;;
+         --no-link)
+            links=false
+            ;;
+        -f | --files)
+            shift
+            files=$1
+            ;;
+        -o | --output)
+            shift
+            output=$1
+            ;;
+        -w | --write)
+            write=true
+            ;;
+        -s | --search)
+            shift
+            search=$1
+            ;;
+        -h | --help)
+            showHelp
+            exit 0
+            ;;
+        --exclude-previous)
+            excludeprevoutput=true
+            ;;
+        --)
+            shift
+            break
+            ;;
     esac
+    shift
 done
 
 # ---------------------------------------------------------------------
+# exit if search is empty
 
-searchterm=$input
-input=${input// /_} # replace space with underline
 
-if [ "$input" == "" ] # check if no input was given
+if [ "$search" = "" ] # check if no input was given
 then
-    echo "invalid input"
+    echo "empty search, use -s or -h for help"
     exit
 fi
 
-name="pages_with_$input.pdf"
+# ---------------------------------------------------------------------
 
-echo "searching for '$searchterm'"
+name="pages_with_$search.pdf"
+echo "searching for '$search'"
 
 # ---------------------------------------------------------------------
 
 # main command
-rga "($searchterm)" | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$addfilename" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
+rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$links" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
 
 # ---------------------------------------------------------------------
 
-if [ "$persistent" = true ] && [ -f "/tmp/$name" ] # persistent
+# [ -s "$output" ] && filename=$name || filename="$output"
+if [ "$write" = true ] && [ -f "/tmp/$name" ] # write file to current directory
 then
     mv "/tmp/$name" "$name"
-    if [ "$o_flag" = true ] && [ -f "$name" ] # persistent and open
+    if [ "$view" = true ] && [ -f "$filename" ] # write with given name
     then
-        xdg-open "$name" 2> /dev/null
+        evince "$filename" 2> /dev/null
     fi
-elif [ "$o_flag" = true ] && [ -f "/tmp/$name" ] # non persistant but open
+elif [ "$view" = true ] && [ -f "/tmp/$name" ] # open file
 then
-    xdg-open "/tmp/$name" 2> /dev/null
+    evince "/tmp/$name" 2> /dev/null
 fi
 
