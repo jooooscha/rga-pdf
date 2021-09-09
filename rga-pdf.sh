@@ -24,7 +24,6 @@ view=true
 links=true
 files=""
 output=false
-write=false
 search=""
 excludeprevoutput=false
 
@@ -36,14 +35,14 @@ Usage:
 EOF
 }
 
-options=$(getopt -l "no-view,no-link,files:,output:,write,search:,help,exclude-previous" -o "f:o:ws:h" -a -- "$@")
+options=$(getopt -l "no-view,no-link,files:,output,search:,help,exclude-previous" -o "f:os:hv" -a -- "$@")
 
 eval set -- "$options"
 
 while true
 do
     case $1 in
-         --no-view)
+         -v | --no-view)
             view=false
             ;;
          --no-link)
@@ -54,11 +53,7 @@ do
             files=$1
             ;;
         -o | --output)
-            shift
-            output=$1
-            ;;
-        -w | --write)
-            write=true
+            output=true
             ;;
         -s | --search)
             shift
@@ -102,7 +97,7 @@ rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort 
 # ---------------------------------------------------------------------
 
 # [ -s "$output" ] && filename=$name || filename="$output"
-if [ "$write" = true ] && [ -f "/tmp/$name" ] # write file to current directory
+if [ "$output" = true ] && [ -f "/tmp/$name" ] # write file to current directory
 then
     mv "/tmp/$name" "$name"
     if [ "$view" = true ] && [ -f "$filename" ] # write with given name
