@@ -5,12 +5,13 @@ Simple script that searches with ![ripgrep-all](https://github.com/phiresky/ripg
 
 # Flags
 
-|             |                                                                       |
-|-------------|-----------------------------------------------------------------------|
-| -s <string> | Term to search for in pdfs                                            |
-| -o          | Automatically open pdf viewer                                         |
-| -p          | Keep the result file persistant. Otherwise will be created in `/tmp/` |
-| -f          | Add origin file to bottom corner of page.                             |
+|              |                                                                       |
+|--------------|-----------------------------------------------------------------------|
+| -v --no-view | Show pdf                                                              |
+| --no-link    | Link to original pdf                                                  |
+| -f --files   | Files to seach                                                        |
+| -o --output  |                                                                       |
+| -s --search  | searchterm                                                            |
     
 
 
