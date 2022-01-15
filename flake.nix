@@ -4,12 +4,9 @@
   inputs = {
     # nixpkgs.url = "github:nixos/nixpkgs/?ref=release-21.11";
     flake-utils.url = "github:numtide/flake-utils";
-    mach-nix = {
-      url = "github:DavHau/mach-nix";
-    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, mach-nix }:
+  outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -21,12 +18,10 @@
         });
 
         makeName = "makePdf";
-        # makeSrc = builtins.readFile ./makePdf.py;
         makePdf = pkgs.python3Packages.buildPythonPackage {
           pname = makeName;
           version = "1.0";
           src = ./.;
-          # propagatedBuildInputs = with pkgs.python39Packages; [ pypdf2 ];
           propagatedBuildInputs = with pkgs.python39Packages; [
             reportlab
             pypdf2
