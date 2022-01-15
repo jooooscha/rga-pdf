@@ -3,69 +3,105 @@
 import os
 import sys
 import io
+import json
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
-#  print(sys.argv)
+OUTPUT_PREFIX = "pages_with_"
+BOOL_TRUE = ['true', '1', 't', 'y', 'yes']
 
-array = [] # (filename, [ pages ])
-current_array = [] # temp array
+#--------------------------------------------------------------------#
+#               Matches a filename to a list of pages                #
+#--------------------------------------------------------------------#
 
-current_page = ""
-i = -1
+class Matches:
+    def __init__(self):
+        self.matches = {}
 
-# parse input
+    def addMatch(self, filename, pageNum):
+        # convert pageNum to int
+        pageNum = int(pageNum)
+
+        # get current pages
+        pages = self.getMatches(filename)
+
+        # don't add duplicates
+        if pageNum not in pages:
+            pages.append(pageNum)
+
+            pages.sort()
+
+            # put array back into place
+            self.matches.update({filename:pages})
+
+    # return pages for a filename
+    def getMatches(self, filename):
+        return self.matches.get(filename, [])
+
+    # return all file names
+    def getFiles(self):
+        return self.matches.keys()
+
+    # count all pages
+    def size(self):
+        size = 0
+        for filename in self.matches:
+            size += len(self.getMatches(filename))
+
+        return size
+
+#--------------------------------------------------------------------#
+#                          Parse arguments                           #
+#--------------------------------------------------------------------#
+
+addLinks = sys.argv[1].lower() in BOOL_TRUE
+fileName = sys.argv[2]
+current_path = sys.argv[3]
+skipPrevOutput = sys.argv[4].lower() in BOOL_TRUE
+
+#--------------------------------------------------------------------#
+#                           Prepare pages                            #
+#--------------------------------------------------------------------#
+
+matches = Matches()
+
+# parse stin
 for line in sys.stdin:
 
     try:
-        filename, page_num = line.split()
+        filename = json.loads(line)[0]
+        page = json.loads(line)[1]
     except:
-        print("Could not parse: " + line)
+        print("Could not parse input: " + line)
         continue
 
-    if filename.split(".")[-1] != "pdf" or (filename.startswith("pages_with_") and sys.argv[4]):
-        # skip non pdf
-        # skip previous ourputs
+    # skip non-pdf files
+    if filename.split(".")[-1] != "pdf":
+        print("Skipping non-pdf: " + filename)
         continue
 
+    # skip pdfs that have been outputted by this script
+    if filename.startswith(OUTPUT_PREFIX) and skipPrevOutput:
+        print("Skipping " + filename)
+        continue
 
-    if current_page != filename:
-        if current_page != "" :
-            array.append((current_page, current_array))
-            current_array = []
+    matches.addMatch(filename, page)
 
-        current_page = filename
-
-        i = i + 1
-
-    current_array.append(page_num)
-
-array.append((current_page, current_array)) # append last found
-
-if len(array) == 0:
-    raise SystemExit("Nothing found") # exits
-
-# convert string to int
-intarray = []
-for name, pages in array:
-    tmparray = []
-    for p in pages:
-        tmparray.append(int(p))
-
-    intarray.append((name, tmparray))
-
-# sort and remove doubles
-sortarr = []
-for name, pages in intarray:
-    sortarr.append((name, sorted(list(dict.fromkeys(pages)))))
+if matches.size() == 0:
+    print("No matches")
+    exit()
+else:
+    print("%s pages matched" % matches.size())
 
 # prepare output
 output = PdfFileWriter()
 
-pagecounter = 0
+#--------------------------------------------------------------------#
+#                           Create new pdf                           #
+#--------------------------------------------------------------------#
 
-# combine pages
-for filename, pages in sortarr:
+# frankensteining new pdf
+for filename in matches.getFiles():
     if filename == "":
         continue
     f = PdfFileReader(open(filename, "rb"), strict=False)
@@ -76,38 +112,39 @@ for filename, pages in sortarr:
     can.setFillColorRGB(0.7, 0.7, 0.7)
     can.drawString(4, 4, filename)
 
-    hostnamewidth = can.stringWidth(filename)
-    linkRect = (0, 0, hostnamewidth, 20)
-    path = "file://" + sys.argv[3] + "/" + filename
+    filenameWidth = can.stringWidth(filename)
+    linkRect = (0, 0, filenameWidth, 20)
+    path = "file://" + current_path + "/" + filename
     can.linkURL(path, linkRect)
     can.save()
 
     packet.seek(0)
     tmppdf = PdfFileReader(packet)
 
-    for pagenum in pages:
-        page = f.getPage(pagenum-1)
-        if sys.argv[1] == 'true': # if wanted: write to original pdf
+    # go through pages
+    for pageNum in matches.getMatches(filename):
+        page = f.getPage(pageNum-1)
+        # add links with wanted
+        if addLinks:
             page.mergePage(tmppdf.getPage(0))
-        output.addPage(page)
-        pagecounter += 1
 
-print(str(pagecounter) + " pages have been found")
+        # add page to output pdf
+        output.addPage(page)
+
+#--------------------------------------------------------------------#
+#                           Write new pdf                            #
+#--------------------------------------------------------------------#
 
 # filename
-f = "/tmp/" + sys.argv[2]
+path = "/tmp/" + fileName
 
 # remove if exists
-if os.path.exists(f):
-    os.remove(f)
+if os.path.exists(path):
+    os.remove(path)
 
-
-# write
-if pagecounter == 0:
-    print("Document empty. Nothing written")
-    exit()
-outputStream = open(f, "bw")
+# write pdf
+outputStream = open(path, "bw")
 output.write(outputStream)
 outputStream.close()
 
-print(sys.argv[2], " written")
+print("Pdf ready")

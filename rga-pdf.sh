@@ -1,67 +1,65 @@
 #!/usr/bin/bash
 
-# open=true
-# input=""
-# output=false
-# linkfilename=true
-# excludeprevoutput=true
-# filestosearch=""
-
-# get opts ------------------------------------------------------------
-# while getopts "os:plif:" arg
-# do
-#     case "${arg}" in
-#         # o) o_flag=false ;;
-#         s) input="${OPTARG}" ;;
-#         o) output=true ;; # p - move file to persistent storage (current dir)
-#         l) linkfilename=false ;; # f - add Filename to bottom of page
-#         i) excludeprevoutput=false ;; # i - Include prev outptu
-#         f) filestosearch="${OPTARG}" ;; # files to seach through
-#     esac
-# done
-
-view=true
-links=true
+openDirectly=true
+addLinks=true
 files=""
-output=false
-search=""
+saveFile=false
+searchTerm=""
 excludeprevoutput=false
+filename=""
 
 showHelp() {
 cat << EOF
+rpdf -- Version 2.0
 Usage:
 
-    --open  Open pdf automatically
+    --no-open           Do not open result automatically. Implies --save
+    --no-links          Do not add links to original file to pages
+    --save              Save result to the current folder
+    -n | --name         Result name. Default: 'pages_with_\$searchTerm'. Implies --save
+    -s | --seach        Specify search term
+    --exclude-previous  Do not search on pages that have been outputted by this script (matched by 'pages_with_')
+    -h | --help         Show help
 EOF
 }
 
-options=$(getopt -l "no-view,no-link,files:,output,search:,help,exclude-previous" -o "f:os:hv" -a -- "$@")
+#--------------------------------------------------------------------#
+#                   Evaluate command line options                    #
+#--------------------------------------------------------------------#
+
+options=$(getopt -l "no-open,no-links,files:,save,search:,help,exclude-previous,name:" -o "f:s:hn:" -a -- "$@")
 
 eval set -- "$options"
 
 while true
 do
     case $1 in
-         -v | --no-view)
-            view=false
+         --no-open)
+            openDirectly=false
+            saveFile=true
             ;;
-         --no-link)
-            links=false
+         --no-links)
+            addLinks=false
             ;;
         -f | --files)
             shift
             files=$1
             ;;
-        -o | --output)
-            output=true
+        --save)
+            saveFile=true
             ;;
         -s | --search)
             shift
-            search=$1
+            searchTerm=$1
             ;;
         -h | --help)
             showHelp
             exit 0
+            ;;
+        -n | --name)
+            shift
+            filename="$1"
+            saveFile=true
             ;;
         --exclude-previous)
             excludeprevoutput=true
@@ -74,39 +72,49 @@ do
     shift
 done
 
-# ---------------------------------------------------------------------
-# exit if search is empty
+name="pages_with_$searchTerm.pdf"
+[ "$filename" = "" ] && filename="$name"
 
+#--------------------------------------------------------------------#
+#                  Exit if no search term was given                  #
+#--------------------------------------------------------------------#
 
-if [ "$search" = "" ] # check if no input was given
+if [ "$searchTerm" = "" ] # check if no input was given
 then
-    echo "empty search, use -s or -h for help"
+    echo "empty search, use -s <search_term> to search or -h for help"
     exit
 fi
 
-# ---------------------------------------------------------------------
 
-name="pages_with_$search.pdf"
-echo "searching for '$search'"
+#--------------------------------------------------------------------#
+#         Call python script to do the actual searching and          #
+#                              stiching                              #
+#--------------------------------------------------------------------#
 
-# ---------------------------------------------------------------------
+rga -P "($searchTerm)" $files \
+  | rga --json -P "(^.+?(?=:)|(?<=Page )[0-9]+)" \
+  | jq -rc "select(.type == \"match\").data.submatches | [.[0].match.text, .[1].match.text]" \
+  | makePdf.py "$addLinks" "$name" "$(pwd)" "$excludeprevoutput" \
+    || echo "Something went wrong; most likely with the python script"
 
-# main command
-# rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python /home/joscha/main/programming/rga-pdf/makePdf.py "$links" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
-rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort | makePdf.py "$links" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
 
-# ---------------------------------------------------------------------
+#--------------------------------------------------------------------#
+#             Evaluate the result of the python script               #
+#--------------------------------------------------------------------#
 
-# [ -s "$output" ] && filename=$name || filename="$output"
-if [ "$output" = true ] && [ -f "/tmp/$name" ] # write file to current directory
+# exit if pdf is not in tmp folder
+! [ -f "/tmp/$name" ] && echo "Could not find /tmp/$name" && exit
+
+filepath="/tmp/$name"
+
+# write file to current directory
+if [ "$saveFile" = true ]
 then
-    mv "/tmp/$name" "$name"
-    if [ "$view" = true ] && [ -f "$filename" ] # write with given name
-    then
-        evince "$filename" 2> /dev/null
-    fi
-elif [ "$view" = true ] && [ -f "/tmp/$name" ] # open file
-then
-    evince "/tmp/$name" 2> /dev/null
+    mv "/tmp/$name" "$filename"
+    filepath=$filename
 fi
 
+if [ "$openDirectly" = true ]
+then
+    evince "$filepath" 2> /dev/null
+fi
