@@ -92,7 +92,8 @@ echo "searching for '$search'"
 # ---------------------------------------------------------------------
 
 # main command
-rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python ~/.local/bin/makePdf.py "$links" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
+# rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort | python /home/joscha/main/programming/rga-pdf/makePdf.py "$links" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
+rga --pcre2 "($search)" $files | sort | sed 's/: .*//' | sed 's/:Page//' | sort | makePdf.py "$links" "$name" "$(pwd)" "$excludeprevoutput" || echo "Something went wrong; most likely with python"
 
 # ---------------------------------------------------------------------
 
