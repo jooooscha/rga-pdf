@@ -81,8 +81,9 @@ name="pages_with_$searchTerm.pdf"
 
 if [ "$searchTerm" = "" ] # check if no input was given
 then
-    echo "empty search, use -s <search_term> to search or -h for help"
-    exit
+  
+  showHelp
+  exit
 fi
 
 
