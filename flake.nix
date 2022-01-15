@@ -34,19 +34,19 @@
           ];
         };
 
-        buildInputs = with pkgs; [ ];
+        deps = with pkgs; [ jq ripgrep-all evince ];
       in rec {
         defaultPackage = packages.script;
         packages.script = pkgs.symlinkJoin {
           name = name;
-          paths = [ script makePdf ] ++ buildInputs;
+          paths = [ script makePdf ] ++ deps;
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = "wrapProgram $out/bin/${name} --prefix PATH : $out/bin";
         };
 
         packages.maker = pkgs.symlinkJoin {
           name = "makePdf";
-          paths = [ makePdf ] ++ buildInputs;
+          paths = [ makePdf ] ++ deps;
           buildInputs = [pkgs.makeWrapper ];
           postBuild = "wrapProgram $out/bin/${name} --prefix PATH : $out/bin";
         };
