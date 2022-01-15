@@ -5,7 +5,7 @@ Simple script that searches with ![ripgrep-all](https://github.com/phiresky/ripg
 
 # Flags
 
-|                    |                                                                                           |
+| Flag               | Description                                                                               |
 |--------------------|-------------------------------------------------------------------------------------------|
 | --no-open          | Do not open result automatically. Implies --save                                          |
 | --no-links         | Do not add links to original file to pages                                                |
