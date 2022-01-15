@@ -36,8 +36,8 @@
 
         deps = with pkgs; [ jq ripgrep-all evince ];
       in rec {
-        defaultPackage = packages.script;
-        packages.script = pkgs.symlinkJoin {
+        defaultPackage = packages.rga-pdf;
+        packages.rga-pdf = pkgs.symlinkJoin {
           name = name;
           paths = [ script makePdf ] ++ deps;
           buildInputs = [ pkgs.makeWrapper ];
