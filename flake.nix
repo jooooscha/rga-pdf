@@ -32,6 +32,7 @@
         deps = with pkgs; [ jq ripgrep-all evince ];
       in rec {
         defaultPackage = packages.rga-pdf;
+        defualtApp = packages.rga-pdf;
         packages.rga-pdf = pkgs.symlinkJoin {
           name = name;
           paths = [ script makePdf ] ++ deps;

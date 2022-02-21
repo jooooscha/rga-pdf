@@ -40,7 +40,9 @@ class Matches:
 
     # return all file names
     def getFiles(self):
-        return self.matches.keys()
+        keys = list(self.matches.keys())
+        keys.sort()
+        return keys
 
     # count all pages
     def size(self):
