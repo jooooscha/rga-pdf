@@ -128,7 +128,7 @@ for filename in matches.getFiles():
         page = f.getPage(pageNum-1)
         # add links with wanted
         if addLinks:
-            page.mergePage(tmppdf.getPage(0))
+            page.merge_page(tmppdf.getPage(0))
 
         # add page to output pdf
         output.addPage(page)
