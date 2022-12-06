@@ -10,7 +10,7 @@ filename=""
 
 showHelp() {
 cat << EOF
-rpdf -- Version 2.0
+rpdf -- Version 2.0.4
 Usage:
 
     --no-open           Do not open result automatically. Implies --save
