@@ -2,7 +2,7 @@
   description = "rpdf";
 
   inputs = {
-    # nixpkgs.url = "github:nixos/nixpkgs/?ref=release-21.11";
+    nixpkgs.url = "github:nixos/nixpkgs/?ref=release-22.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -22,10 +22,11 @@
           pname = makeName;
           version = "1.0";
           src = ./.;
-          propagatedBuildInputs = with pkgs.python39Packages; [
+          propagatedBuildInputs = with pkgs.python3Packages; [
             reportlab
             pypdf2
             setuptools
+            pillow
           ];
         };
 
