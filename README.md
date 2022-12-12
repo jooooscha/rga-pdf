@@ -25,4 +25,4 @@ Uninstall: `make uninstall`. Will remove both files from `~/.local/bin/`.
 
 ## Nixos
 
-- `nix build && ./result/bin/rpdf`
+- `nix run github:jooooscha/rga-pdf`
