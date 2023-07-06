@@ -5,7 +5,7 @@ import sys
 import io
 import json
 from reportlab.pdfgen import canvas
-from PyPDF2 import PdfFileReader, PdfWriter
+from PyPDF2 import PdfReader, PdfWriter
 
 OUTPUT_PREFIX = "pages_with_"
 BOOL_TRUE = ['true', '1', 't', 'y', 'yes']
@@ -106,7 +106,7 @@ output = PdfWriter()
 for filename in matches.getFiles():
     if filename == "":
         continue
-    f = PdfFileReader(open(filename, "rb"), strict=False)
+    f = PdfReader(open(filename, "rb"), strict=False)
 
     # write filename to a temp pdf
     packet = io.BytesIO()
@@ -121,7 +121,7 @@ for filename in matches.getFiles():
     can.save()
 
     packet.seek(0)
-    tmppdf = PdfFileReader(packet)
+    tmppdf = PdfReader(packet)
 
     # go through pages
     for pageNum in matches.getMatches(filename):
