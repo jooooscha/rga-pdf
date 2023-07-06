@@ -125,13 +125,13 @@ for filename in matches.getFiles():
 
     # go through pages
     for pageNum in matches.getMatches(filename):
-        page = f.getPage(pageNum-1)
+        page = f.pages[pageNum-1]
         # add links with wanted
         if addLinks:
-            page.merge_page(tmppdf.getPage(0))
+            page.merge_page(tmppdf.pages[0])
 
         # add page to output pdf
-        output.addPage(page)
+        output.add_page(page)
 
 #--------------------------------------------------------------------#
 #                           Write new pdf                            #

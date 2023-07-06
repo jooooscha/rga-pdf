@@ -44,7 +44,7 @@
         packages.maker = pkgs.symlinkJoin {
           name = "makePdf";
           paths = [ makePdf ] ++ deps;
-          buildInputs = [pkgs.makeWrapper ];
+          buildInputs = [ pkgs.makeWrapper ];
           postBuild = "wrapProgram $out/bin/${name} --prefix PATH : $out/bin";
         };
       }
