@@ -5,7 +5,7 @@ import sys
 import io
 import json
 from reportlab.pdfgen import canvas
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfFileReader, PdfWriter
 
 OUTPUT_PREFIX = "pages_with_"
 BOOL_TRUE = ['true', '1', 't', 'y', 'yes']
@@ -96,7 +96,7 @@ else:
     print("%s pages matched" % matches.size())
 
 # prepare output
-output = PdfFileWriter()
+output = PdfWriter()
 
 #--------------------------------------------------------------------#
 #                           Create new pdf                           #

@@ -81,7 +81,7 @@ name="pages_with_$searchTerm.pdf"
 
 if [ "$searchTerm" = "" ] # check if no input was given
 then
-  
+
   showHelp
   exit
 fi
