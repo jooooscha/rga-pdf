@@ -30,10 +30,11 @@
           ];
         };
 
-        deps = with pkgs; [ jq ripgrep-all evince ];
+        deps = with pkgs; [ jq ripgrep-all ];
       in rec {
         defaultPackage = packages.rga-pdf;
         defualtApp = packages.rga-pdf;
+        # TODO: remove dependency on system-wide python
         packages.rga-pdf = pkgs.symlinkJoin {
           name = name;
           paths = [ script makePdf ] ++ deps;
